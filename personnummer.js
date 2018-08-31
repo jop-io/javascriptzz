@@ -20,12 +20,7 @@ class Personnummer {
         this.pnr = pnr;
         this.parseNumeric();
         
-        if (this.controlCheck())
-        {
-            return this.numeric;
-        }
-        
-        return false;
+        return this.controlCheck() ? this.numeric : false;
     }
     
     parseNumeric()
