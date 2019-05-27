@@ -40,11 +40,11 @@ function nordicCellPhoneNumber(number, format) {
   
   // Mobiltelefonnummer FINLAND + ÅLAND
   if (/^(0|\+358|00358)(457[0-9]{7}|4[0-9]{8}|50[0-9]{7})$/.test(n)) {
-    f.NatNum = n.replace(/(0|\+358|00358)([0-9]{7,8})/, function(x,a,b){ return "0"+b; });
+    f.NatNum = n.replace(/(0|\+358|00358)([0-9]{9,10})/, function(x,a,b){ return "0"+b; });
     f.NatFor = n.replace(/(0|\+358|00358)([0-9]{2})([0-9]{7,8})/, function(x,a,b,c){ return "0"+b+" "+c; });
     f.IntFor = n.replace(/(0|\+358|00358)([0-9]{2})([0-9]{7,8})/, function(x,a,b,c){ return "+358 "+b+" "+c; });
-    f.IntNum = n.replace(/(0|\+358|00358)([0-9]{7,8})/, function(x,a,b){ return "00358"+b; });
-    f.E164   = n.replace(/(0|\+358|00358)([0-9]{7,8})/, function(x,a,b){ return "+358"+b; });
+    f.IntNum = n.replace(/(0|\+358|00358)([0-9]{9,10})/, function(x,a,b){ return "00358"+b; });
+    f.E164   = n.replace(/(0|\+358|00358)([0-9]{9,10})/, function(x,a,b){ return "+358"+b; });
     return f[format] ? f[format] : f.E164;
   }
   
