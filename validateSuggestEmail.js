@@ -14,32 +14,38 @@ function validateSuggestEmail(email)
       tld  = match[5];
   
   let commons = [
-    { "host": "gmail",     "tlds": ["com"]       },
-    { "host": "yahoo",     "tlds": ["com", "se"] },
-    { "host": "hotmail",   "tlds": ["com", "se"] },
-    { "host": "telia",     "tlds": ["com"]       },
-    { "host": "icloud",    "tlds": ["com"]       },
-    { "host": "live",      "tlds": ["com", "se"] },
-    { "host": "outlook",   "tlds": ["com"]       },
-    { "host": "tele2",     "tlds": ["com"]       },
-    { "host": "bahnhof",   "tlds": ["se"]        },
-    { "host": "bredband",  "tlds": ["net"]       },
-    { "host": "bredband2", "tlds": ["com"]       },
-    { "host": "comhem",    "tlds": ["se"]        },
-    { "host": "home",      "tlds": ["se"]        },
-    { "host": "me",        "tlds": ["com"]       },
-    { "host": "msn",       "tlds": ["com"]       },
-    { "host": "spray",     "tlds": ["se"]        },
+    {"host": "gmail",      "tlds": ["com"]},
+    {"host": "hotmail",    "tlds": ["com","se","dk","fr"]},
+    {"host": "live",       "tlds": ["se","com","fr","dk"]},
+    {"host": "outlook",    "tlds": ["com"]},
+    {"host": "telia",      "tlds": ["com"]},
+    {"host": "icloud",     "tlds": ["com"]},
+    {"host": "yahoo",      "tlds": ["se","com","fr","dk"]},
+    {"host": "me",         "tlds": ["com"]},
+    {"host": "msn",        "tlds": ["com"]},
+    {"host": "comhem",     "tlds": ["se"]},
+    {"host": "bredband",   "tlds": ["net"]},
+    {"host": "tele2",      "tlds": ["se"]},
+    {"host": "spray",      "tlds": ["se"]},
+    {"host": "kth",        "tlds": ["se"]},
+    {"host": "bahnhof",    "tlds": ["se"]},
+    {"host": "home",       "tlds": ["se"]},
+    {"host": "mail",       "tlds": ["com","ru"]},
+    {"host": "ymail",      "tlds": ["com"]},
+    {"host": "swipnet",    "tlds": ["se"]},
+    {"host": "bredband2",  "tlds": ["com"]},
+    {"host": "ownit",      "tlds": ["nu"]},
+    {"host": "rocketmail", "tlds": ["com"]},
+    {"host": "protonmail", "tlds": ["com"]},
+    {"host": "vgregion",   "tlds": ["se"]},
+    {"host": "gmx",        "tlds": ["de","net","com"]},
   ];
   
-  let ld = function(s, t) {
-    if (s === t) {
-      return 0;
-    }
+  let ld = function(s, t)
+  {
+    if (s === t) { return 0; }
     let n = s.length, m = t.length;
-    if (n === 0 || m === 0) {
-      return n + m;
-    }
+    if (n === 0 || m === 0) { return n + m; }
     let x = 0, y, a, b, c, d, e, g, h, e1, e2, e3, e4;
     let p = new Uint16Array(n), u = new Uint32Array(n);
     for (y = 0; y < n;) {
@@ -84,24 +90,53 @@ function validateSuggestEmail(email)
     return h;
   };
   
+  // Primary lookup
   for (let i in commons)
   {
-    let c = commons[i];
+    let cs = commons[i];
     
-    // hostname is correct, TLD is correct
-    if (host === c.host && c.tlds.indexOf(tld) >= 0) {
+    if (host === cs.host && cs.tlds.indexOf(tld) >= 0)
+	{
       return true;
     }
-    
-    // hostname is correct, but TLD is wrong
-    if (host === c.host && c.tlds.indexOf(tld) < 0) {
-      return user + "@" + host + "." + c.tlds[0];
+	if (host === cs.host && cs.tlds.indexOf(tld) < 0)
+	{
+      return {
+        suggestion: user + "@" + cs.host + "." + cs.tlds[0],
+        user: user,
+        host: cs.host,
+        tld: cs.tlds[0],
+        domain: cs.host + "." + cs.tlds[0],
+        diff: 'tld'
+      };
     }
-    
-    // levenstien comparsion on hostname
-    if (ld(host, c.host) < 3) {
-      return user + "@" + c.host + "." + (c.tlds.indexOf(tld) >= 0 ? tld : c.tlds[0]);
+  }
+  
+  // Secondary lookup
+  let score = 999,
+      bestMatch = null;
+  
+  for (let i in commons)
+  {
+    let cs = commons[i],
+    ed = ld(host, cs.host);
+    if (ed < 3 && ed < score) {
+      bestMatch = cs;
+      score = ed;
     }
+  }
+  
+  if (bestMatch)
+  {
+    let suggestTLD = bestMatch.tlds.indexOf(tld) >= 0 ? tld : bestMatch.tlds[0];
+    return {
+      suggestion: user + "@" + bestMatch.host + "." + suggestTLD,
+      user: user,
+      host: bestMatch.host,
+      tld: suggestTLD,
+      domain: bestMatch.host + "." + suggestTLD,
+      diff: suggestTLD === tld ? 'host' : 'domain'
+    };
   }
   
   return true;
