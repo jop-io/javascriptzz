@@ -39,6 +39,8 @@ function validateSuggestEmail(email)
     {"host": "protonmail", "tlds": ["com"]},
     {"host": "vgregion",   "tlds": ["se"]},
     {"host": "gmx",        "tlds": ["de","net","com"]},
+    {"host": "volvocars",  "tlds": ["com"]},
+    {"host": "volvo",      "tlds": ["com"]},
   ];
   
   let ld = function(s, t)
