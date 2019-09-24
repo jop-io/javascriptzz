@@ -1,6 +1,6 @@
 function nationalIdNumber(input)
 {
-  // First quick check
+  // First quick check (right number of chars)
   if (!/^([0-9]{6}|[0-9]{8})[\-\+]{0,1}[0-9]{4}$/.test(input))
   {
     return false;
@@ -9,7 +9,7 @@ function nationalIdNumber(input)
   // Make input numeric (remove all but integers)
   let num = input.replace(/\D/g, "");
   
-  // Add century if needed
+  // Add century to birth year, if needed
   if (num.length === 10)
   {    
     let d  = new Date();
@@ -27,12 +27,13 @@ function nationalIdNumber(input)
         num = (p < 10 ? '0' : '') + p + num;
   }
   
-  // Secodary quick check
+  // Secodary quick check (validated birth date)
   if(!/^([0-9]{4}((0[13578]|1[02])([06][1-9]|[1278][0-9]|[39][0-1])|(0[469]|11)([06][1-9]|[1278][0-9]|[39]0)|02([06][1-9]|[17][0-9]|[28][0-8]))|([0-9]{2}([02468][48]|[13579][26]|[2468]0)|([02468][048]|[13579][26])00)02[28]9)([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]|[0-9][1-9][0-9]{2}|[1-9][0-9]{3})$/.test(num))
   {
     return false;
   }
 
+  // Calculate checksum
   let number = num.substr(-10), 
     weights = [0, 2, 4, 6, 8, 1, 3, 5, 7, 9],
     length = 10, 
