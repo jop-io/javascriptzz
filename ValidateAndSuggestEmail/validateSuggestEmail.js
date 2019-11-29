@@ -6,6 +6,7 @@ function validateSuggestEmail(email)
       .match(/^([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)@([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)\.([a-zA-Z0-9]{2,})$/);
   
   if (!match) {
+    // Email address in not valid
     return false;
   }
   
@@ -13,6 +14,8 @@ function validateSuggestEmail(email)
       host = match[3],
       tld  = match[5];
   
+  // Most common hostnames (and TLDs) used in email adresses
+  // !! Order is important !!
   let commons = [
     {"host": "gmail",      "tlds": ["com"]},
     {"host": "hotmail",    "tlds": ["com","se","dk","fr"]},
@@ -92,31 +95,60 @@ function validateSuggestEmail(email)
     return h;
   };
   
-  // Primary lookup
+  // PRIMAY LOOK UP
+  // Check matching hostnames and deviating TLDs
+  // 
+  // This look up is based on correctly spelled hostnames,
+  // but with misspelled or wrong TLD.
+  //
+  // e.g. 'gmail.se' should be 'gmail.com'
+  // e.g. 'gmail.cmo' should be 'gmail.com'
+  //
+  // and so on...
+  
   for (let i in commons)
   {
     let cs = commons[i];
     
     if (host === cs.host && cs.tlds.indexOf(tld) >= 0)
-	{
+  {
       return true;
     }
-	if (host === cs.host && cs.tlds.indexOf(tld) < 0)
-	{
+  if (host === cs.host && cs.tlds.indexOf(tld) < 0)
+  {
       return {
         suggestion: user + "@" + cs.host + "." + cs.tlds[0],
         user: user,
         host: cs.host,
         tld: cs.tlds[0],
         domain: cs.host + "." + cs.tlds[0],
-        diff: 'tld'
+        diff: "tld",
+        html: user + "@" + cs.host + ".<em>" + cs.tlds[0] + "</em>"
       };
     }
   }
   
-  // Secondary lookup
-  let score = 999,
-      bestMatch = null;
+  // SENONDARY LOOK UP
+  // Checks both misspelled hostnames and TLDs
+  // 
+  // e.g. 'hottmail.com' should be 'hotmail.com'
+  // e.g. 'hottmail.cmo' should be 'hotmail.com'
+  // 
+  // and so on...
+  //
+  // Levenshtein is used to find best matching hostname,
+  // and will use the first best match (order is important 
+  // in the commons variable).
+  // 
+  // This means that if the user enters 'xyz@xmail.com', 
+  // they will get 'xyz@gmail.com' as a suggestion, not 
+  // 'xyz@ymail.com'.
+  // 
+  // This is because 'gmail.com' is more common than 
+  // 'ymail.com', and thus 'gmail.com' is ordered before
+  // 'ymail.com' in the commons variable.
+  
+  let score = 999, bestMatch = null;
   
   for (let i in commons)
   {
@@ -131,15 +163,22 @@ function validateSuggestEmail(email)
   if (bestMatch)
   {
     let suggestTLD = bestMatch.tlds.indexOf(tld) >= 0 ? tld : bestMatch.tlds[0];
-    return {
+    let suggestion = {
       suggestion: user + "@" + bestMatch.host + "." + suggestTLD,
       user: user,
       host: bestMatch.host,
       tld: suggestTLD,
       domain: bestMatch.host + "." + suggestTLD,
-      diff: suggestTLD === tld ? 'host' : 'domain'
+      diff: suggestTLD === tld ? 'host' : 'domain',
+      html: null
     };
+    suggestion.html = suggestion.user + "@" + (suggestion.diff === "domain" ? 
+      "<em>" + suggestion.domain + "</em>" : 
+      suggestion.host + ".<em>" + suggestion.tld + "</em>" 
+    );
+    return suggestion;
   }
   
+  // Email address is valid and no suggestions were found
   return true;
 }
