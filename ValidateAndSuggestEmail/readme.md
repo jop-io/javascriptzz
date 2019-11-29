@@ -1,23 +1,29 @@
 # Validera och föreslå förbättringar av inmatade e-postadresser
 Funktion för att att validera en e-postadress som giltig, samt kontrollera om vanliga stavfel eller felskrivningar förekommer.
 
-# Exempel 1
-Giltig e-postadress (inga förbättringsförslag hittades)
+### Exempel 1 - Giltig e-postadress (inga förbättringsförslag hittades)
+```javascript
 validateSuggestEmail("namn@gmail.com");
+```
+...returnerar...
 ```javascript
 true
 ```
 
-# Exempel 2
-Ogiltig e-postadress
+### Exempel 2 - Ogiltig e-postadress
+```javascript
 validateSuggestEmail("namn@@gmail.");
+```
+...returnerar...
 ```javascript
 false
 ```
 
-# Exempel 3
-Giltig e-postadress (förbättringsförslag hittades)
+### Exempel 3 - Giltig e-postadress (förbättringsförslag hittades)
+```javascript
 validateSuggestEmail("namn@gmail.se");
+```
+...returnerar...
 ```javascript
 {
   // Förslag på bättre e-postadress
