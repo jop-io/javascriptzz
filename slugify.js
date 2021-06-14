@@ -1,5 +1,5 @@
 function slugify(text) {
-	return text.toLowerCase().replace(/[àáäåèéëöøüñßæ]/gi, x => {
+  return text.toLowerCase().replace(/[àáäåèéëöøüñßæ]/gi, x => {
     let trans = {
       'à':'a',
       'á':'a',
